@@ -1,4 +1,4 @@
-# infra
+# db
 
 # 네임스페이스 생성
 kubectl create ns db
