@@ -12,6 +12,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Profile("prd")
 public class ProductionSecurityConfig {
 
+
     @Bean
     public SecurityWebFilterChain productionSecurityWebFilterChain(ServerHttpSecurity http) {
         return http
