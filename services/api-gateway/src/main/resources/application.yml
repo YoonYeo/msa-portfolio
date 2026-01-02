@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    activate:
+      on-profile: prd
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: http://order-service:8082
+          predicates:
+            - Path=/orders/**
+
+        - id: auth-service
+          uri: http://auth-service:8083
+          predicates:
+            - Path=/auth/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+    gateway:
+      enabled: false

@@ -1,0 +1,3 @@
+rootProject.name = 'msa-portfolio'
+
+include 'services:api-gateway'
