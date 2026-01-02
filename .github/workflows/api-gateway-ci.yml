@@ -1,5 +1,9 @@
 name: api-gateway CI
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     paths:
@@ -25,19 +29,19 @@ jobs:
 
       - name: Docker build
         run: |
-          docker build -t ghcr.io/yoonyeo/api-gateway:${{ github.sha }} services/api-gateway
+          docker build -t ghcr.io/yoonyeo/msa-portfolio-api-gateway:${{ github.sha }} services/api-gateway
 
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u syyeo --password-stdin
 
       - name: Docker push
-        run: docker push ghcr.io/yoonyeo/api-gateway:${{ github.sha }}
+        run: docker push ghcr.io/yoonyeo/msa-portfolio-api-gateway:${{ github.sha }}
 
       - name: Update GitOps repo
         run: |
           git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@github.com/YoonYeo/msa-gitops.git
           cd msa-gitops/api-gateway
-          sed -i "s|image:.*|image: ghcr.io/yoonyeo/api-gateway:${{ github.sha }}|" deployment.yaml
+          sed -i "s|image:.*|image: ghcr.io/yoonyeo/msa-portfolio-api-gateway:${{ github.sha }}|" deployment.yaml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add deployment.yaml
