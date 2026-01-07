@@ -1,0 +1,46 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  config:
+    activate:
+      on-profile: prd
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://mariadb.database.svc.cluster.local:3306/auth_db?allowMultiQueries=true}
+    username: ${SPRING_DATASOURCE_USERNAME:auth_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:auth1234}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        show-sql: false
+        format-sql: true
+
+  data:
+    redis:
+      host: redis.cache.svc.cluster.local
+      port: 6379
+
+jwt:
+  secret: ${JWT_SECRET}
+  refresh-secret: ${JWT_REFRESH_SECRET}
+  access-token-validation-in-sec: 300
+  refresh-token-validation-in-sec: 604800
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized

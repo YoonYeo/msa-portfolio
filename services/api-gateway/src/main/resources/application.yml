@@ -7,6 +7,10 @@ spring:
   config:
     activate:
       on-profile: prd
+  data:
+    redis:
+      host: redis.cache
+      port: 6379
   cloud:
     gateway:
       routes:

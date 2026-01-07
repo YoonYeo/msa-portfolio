@@ -1,0 +1,49 @@
+server:
+  port: 8081
+
+
+spring:
+  application:
+    name:auth-service
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:mariadb://localhost:33306/auth_db?allowMultiQueries=true
+    username: auth_user
+    password: auth1234
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+
+    properties:
+      hibernate:
+        jdbc.batch_size: 1000
+        show-sql: true
+        format-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.orm.naming: DEBUG
+    org.springframework.boot.orm.jpa.hibernate: DEBUG
+    org.mybatis: off
+    jdbc.sqlonly: off
+
+jwt:
+  secret: bXNhLXRveS1wcm9qZWN0LXBvcnRmb2xpby10ZXN0LWxvY2FsLWthZmthLXJlZGlzLW1hcmlhZGItc2VjcmV0LWtleS1sZW5ndGgtbG9uZy1lbm91Z2g=
+  refresh-secret: bXNhLXRveS1wcm9qZWN0LXBvcnRmb2xpby10ZXN0LWt1YmVybmV0ZXMta2Fma2EtcmVkaXMtbWFyaWFkYi1zZWNyZXQta2V5LWxlbmd0aC1sb25nLWVub3VnaA==
+  access-token-validation-in-sec: 300
+  refresh-token-validation-in-sec: 604800
