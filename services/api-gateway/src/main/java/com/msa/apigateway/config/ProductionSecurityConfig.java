@@ -18,8 +18,8 @@ public class ProductionSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeExchange(exchange -> exchange
-                // 헬스체크만 공개
                 .pathMatchers("/actuator/health").permitAll()
+                .pathMatchers("/auth/signup", "/auth/login", "/auth/refresh").permitAll()
                 .pathMatchers("/actuator/**").authenticated()
                 .anyExchange().authenticated()
             )

@@ -17,8 +17,8 @@ public class SecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeExchange(exchange -> exchange
-                // 로컬: 모든 엔드포인트 공개
                 .pathMatchers("/actuator/**").permitAll()
+                .pathMatchers("/auth/**").permitAll()
                 .anyExchange().authenticated()
             )
             .build();
