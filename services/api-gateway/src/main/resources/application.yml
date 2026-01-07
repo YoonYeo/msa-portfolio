@@ -20,7 +20,7 @@ spring:
             - Path=/orders/**
 
         - id: auth-service
-          uri: http://auth-service:8083
+          uri: http://auth-service.auth:8081
           predicates:
             - Path=/auth/**
 
