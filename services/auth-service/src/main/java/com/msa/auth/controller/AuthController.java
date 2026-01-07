@@ -29,36 +29,25 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest,
                                               HttpServletRequest request,
                                               HttpServletResponse response) {
-        try {
-            String ipAddress = getClientIp(request);
-            String userAgent = request.getHeader("User-Agent");
+        String ipAddress = getClientIp(request);
+        String userAgent = request.getHeader("User-Agent");
 
-            LoginResponse loginResponse = authService.login(loginRequest, ipAddress, userAgent);
+        LoginResponse loginResponse = authService.login(loginRequest, ipAddress, userAgent);
 
-            Cookie refreshTokenCookie = createRefreshTokenCookie(loginResponse.getRefreshToken());
-            response.addCookie(refreshTokenCookie);
+        Cookie refreshTokenCookie = createRefreshTokenCookie(loginResponse.getRefreshToken());
+        response.addCookie(refreshTokenCookie);
 
-            return ResponseEntity.ok(new JwtResponse(loginResponse.getAccessToken(), loginResponse.getName()));
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("비밀번호")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(new JwtResponse(loginResponse.getAccessToken(), loginResponse.getName()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> refresh(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
-        try {
-            if (refreshToken == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-
-            JwtResponse jwtResponse = authService.refresh(refreshToken);
-            return ResponseEntity.ok(jwtResponse);
-        } catch (RuntimeException e) {
+        if (refreshToken == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        JwtResponse jwtResponse = authService.refresh(refreshToken);
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @PostMapping("/logout")

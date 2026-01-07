@@ -4,6 +4,7 @@ import com.msa.auth.controller.dto.JwtResponse;
 import com.msa.auth.controller.dto.LoginRequest;
 import com.msa.auth.controller.dto.LoginResponse;
 import com.msa.auth.controller.dto.SignupRequest;
+import com.msa.auth.exception.*;
 import com.msa.auth.model.ERole;
 import com.msa.auth.model.Role;
 import com.msa.auth.model.User;
@@ -34,6 +35,11 @@ public class AuthServiceImpl implements AuthService {
     public void signup(SignupRequest signupRequest) {
         log.info("회원가입 요청 아이디: {}", signupRequest.getUsername());
 
+        // 중복 사용자 체크
+        if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+            throw new DuplicateUserException("이미 존재하는 사용자입니다: " + signupRequest.getUsername());
+        }
+
         // 사용자 생성
         User user = new User();
         user.setUsername(signupRequest.getUsername());
@@ -42,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 기본 권한 부여
         Role role = roleRepository.findByName(ERole.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("권한을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("권한을 찾을 수 없습니다."));
         user.getRoles().add(role);
 
         userRepository.save(user);
@@ -55,12 +61,11 @@ public class AuthServiceImpl implements AuthService {
 
         // 사용자 조회
         User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + loginRequest.getUsername()));
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            log.warn("패스워드 불일치: {}", loginRequest.getUsername());
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
         }
 
         // 권한 목록 추출
@@ -92,20 +97,19 @@ public class AuthServiceImpl implements AuthService {
     public JwtResponse refresh(String refreshToken) {
         // 리프레시 토큰 검증
         if (!jwtProvider.validateRefreshToken(refreshToken)) {
-            throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
+            throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
 
         String username = jwtProvider.getUsernameFromRefreshToken(refreshToken);
 
         // Redis에 저장된 리프레시 토큰과 비교 (중복 로그인 체크)
         if (!redisSessionService.validateRefreshToken(username, refreshToken)) {
-            log.warn("리프레시 토큰 불일치: {}", username);
-            throw new RuntimeException("다른 곳에서 로그인되었습니다.");
+            throw new InvalidTokenException("다른 곳에서 로그인되었습니다.");
         }
 
         // 사용자 조회
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
         // 권한 목록 추출
         List<String> roles = user.getRoles().stream()
