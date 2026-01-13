@@ -27,6 +27,9 @@ spring:
           predicates:
             - Path=/auth/**
 
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJwtTokenGenerationAndValidationInLocalEnvironment1234567890}
+
 management:
   endpoints:
     web:
